@@ -2,7 +2,10 @@
 Classification of Twitter users using multimodal embeddings
 
 ## Download the code
-`git clone https://github.com/medialab/graines.git`
+```
+git clone https://github.com/medialab/graines.git
+cd graines
+```
 
 ## Install requirements
 * create a virtual environment with python 3.8
