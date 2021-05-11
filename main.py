@@ -13,7 +13,6 @@ import getpass
 warnings.filterwarnings("ignore", category=UserWarning)
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s : %(message)s', level=logging.INFO)
-embedding_types = ["USE_on_descriptions", "tfidf_on_descriptions"]
 classifiers = ["SVM_triangular_kernel"]
 report_fields = ["model", "classifier", "labels", "p", "r", "f1", "seed", "datetime", "author"]
 report_file = "results_binary_classif.csv"
@@ -24,7 +23,6 @@ parser = argparse.ArgumentParser()
 
 parser.add_argument('--model',
                     required=True,
-                    choices=embedding_types,
                     help="""
                     Name of the user embedding
                     """
