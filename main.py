@@ -5,7 +5,6 @@ import pandas as pd
 import numpy as np
 import argparse
 import logging
-import yaml
 import warnings
 from create_ground_truth import LABEL_FILE_NAME
 
@@ -31,7 +30,8 @@ parser.add_argument('--model',
                     """
                     )
 parser.add_argument('--classifier',
-                    required=True,
+                    required=False,
+                    default="SVM_triangular_kernel",
                     choices=classifiers,
                     help="""
                     Name of the classifier
@@ -82,7 +82,7 @@ def test_params(**params):
             clf = SVC(kernel=kernel, C=3)
             clf.fit(X_train, y_train)
             y_pred = clf.predict(X_test)
-            precision, recall, f1, _ = precision_recall_fscore_support(y_test, y_pred,)
+            precision, recall, f1, _ = precision_recall_fscore_support(y_test, y_pred, pos_label=1, average="binary")
             params["p"] = precision
             params["r"] = recall
             params["f1"] = f1
@@ -95,7 +95,7 @@ def test_params(**params):
                 except FileNotFoundError:
                     results = pd.DataFrame()
                 current_results = results.append(current_results, ignore_index=True)
-                current_results.to_csv("results_classif.csv")
+                current_results.to_csv("results_classif.csv", index=False)
         logging.info(
             "average F1 on {} runs: {}±{}".format(
                 display_df.shape[0],

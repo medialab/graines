@@ -11,7 +11,7 @@ for i, g in enumerate(["non_graines", "graines"]):
     # type columns containing integers
     for int_val in ["tweets", "followers", "friends", "likes", "lists", "timestamp_utc"]:
         graines[int_val] = graines[int_val].astype(int)
-    graines["labels"] = i
+    graines["label"] = i
     df = df.append(graines)
 
 df.to_csv(LABEL_FILE_NAME, index=False)
