@@ -25,7 +25,7 @@ You can run `python tfidf_on_descriptions.py` to get an example of the embedding
 `python main.py --model name_of_your_embedding_model` (without .npy in the name of the model)
 The results are run 5 times with a different train/test split. The complete report is saved to [results_binary_classif.csv](results_binary_classif).
 
-## Push your code
+## Push your code and results
 The [.gitignore](.gitignore) file should prevent you from loading the users personnal data or any Twitter data we collected.
 ```
 git add .
