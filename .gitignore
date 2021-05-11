@@ -1,7 +1,7 @@
 # Data files
 graines_metadata.csv
 non_graines_metadata.csv
-graines_et_non_graines.csv.csv
+graines_et_non_graines.csv
 *.gz
 
 # Byte-compiled / optimized / DLL files
