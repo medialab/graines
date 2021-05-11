@@ -16,14 +16,14 @@ Classification of Twitter users using multimodal embeddings
 The seeds get the label 1 and the non-seeds the label 0.
 
 ## Create your own embeddings
-Have a look at the [tfidf_on_descriptions.py](tfidf_on_descriptions.py) file: the matrix should be saved
+Have a look at the [tfidf_on_descriptions.py](https://github.com/medialab/graines/blob/main/tfidf_on_descriptions.py) file: the matrix should be saved
 as a `name_of_your_embedding_model.npy` matrix, and have exactly 411 rows. 
 The vectors corresponding to each user should be in the same order as the users in `graines_et_non_graines.csv`.
 You can run `python tfidf_on_descriptions.py` to get an example of the embedding matrix.
 
 ## Run the test
 `python main.py --model name_of_your_embedding_model` (without .npy in the name of the model)
-The results are run 5 times with a different train/test split. The complete report is saved to [results_binary_classif.csv](results_binary_classif).
+The results are run 5 times with a different train/test split. The complete report is saved to [results_binary_classif.csv](https://github.com/medialab/graines/blob/main/results_binary_classif.csv).
 
 ## Push your code and results
 The [.gitignore](.gitignore) file should prevent you from loading the users personnal data or any Twitter data we collected.
