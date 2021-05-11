@@ -7,10 +7,12 @@ import argparse
 import logging
 import yaml
 import warnings
+from create_ground_truth import LABEL_FILE_NAME
+
 warnings.filterwarnings("ignore", category=UserWarning)
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s : %(message)s', level=logging.INFO)
-embedding_types = ["USE_on_descriptions"]
+embedding_types = ["USE_on_descriptions", "tfidf_on_descriptions"]
 classifiers = ["SVM_triangular_kernel"]
 
 parser = argparse.ArgumentParser()
@@ -52,7 +54,7 @@ parser.add_argument('--objective',
                     )
 parser.add_argument('--labels',
                     required=False,
-                    default="graines_et_non_graines.csv",
+                    default=LABEL_FILE_NAME,
                     help="""
                     Path to the csv file containing the labels of users in the "label" column
                     """
