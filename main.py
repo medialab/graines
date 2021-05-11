@@ -1,19 +1,18 @@
-from sklearn.svm import SVC
 from sklearn.model_selection import train_test_split, GridSearchCV
-from sklearn.metrics import precision_recall_fscore_support, euclidean_distances
+from sklearn.metrics import precision_recall_fscore_support
 import pandas as pd
 import numpy as np
 import argparse
 import logging
 import warnings
 from create_ground_truth import LABEL_FILE_NAME
+from classifiers import classifiers
 from datetime import datetime
 import getpass
 
 warnings.filterwarnings("ignore", category=UserWarning)
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s : %(message)s', level=logging.INFO)
-classifiers = ["SVM_triangular_kernel"]
 report_fields = ["model", "classifier", "labels", "p", "r", "f1", "seed", "datetime", "author"]
 report_file = "results_binary_classif.csv"
 username = getpass.getuser()
@@ -30,7 +29,7 @@ parser.add_argument('--model',
 parser.add_argument('--classifier',
                     required=False,
                     default="SVM_triangular_kernel",
-                    choices=classifiers,
+                    choices=classifiers.keys(),
                     help="""
                     Name of the classifier
                     """
@@ -63,10 +62,6 @@ def main(args):
     test_params(**args, seeds=[628, 11, 1008, 2993, 559])
 
 
-def kernel(X, Y):
-    return 1 - abs(euclidean_distances(X, Y))
-
-
 def test_params(**params):
     X = np.load(params["model"] + ".npy")
     display_df = pd.DataFrame()
@@ -77,7 +72,7 @@ def test_params(**params):
         logging.info("Start classification. This may take some time...")
         for seed in params.pop("seeds"):
             X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.5, random_state=seed)
-            clf = SVC(kernel=kernel, C=3)
+            clf = classifiers[params["classifier"]]
             clf.fit(X_train, y_train)
             y_pred = clf.predict(X_test)
             precision, recall, f1, _ = precision_recall_fscore_support(y_test, y_pred, pos_label=1, average="binary")
