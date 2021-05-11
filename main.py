@@ -16,12 +16,7 @@ classifiers = ["SVM_triangular_kernel"]
 
 parser = argparse.ArgumentParser()
 
-parser.add_argument('--path_to_vectors',
-                    required=True,
-                    help="""
-                    Path to the user vectors in .npy format
-                    """
-                    )
+
 parser.add_argument('--model',
                     required=True,
                     choices=embedding_types,
@@ -70,7 +65,7 @@ def kernel(X, Y):
 
 
 def test_params(**params):
-    X = np.load(params["path_to_vectors"])
+    X = np.load(params["model"] + ".npy")
     display_df = pd.DataFrame()
 
     if params["objective"] == "test":
