@@ -7,12 +7,17 @@ import argparse
 import logging
 import warnings
 from create_ground_truth import LABEL_FILE_NAME
+from datetime import datetime
+import getpass
 
 warnings.filterwarnings("ignore", category=UserWarning)
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s : %(message)s', level=logging.INFO)
 embedding_types = ["USE_on_descriptions", "tfidf_on_descriptions"]
 classifiers = ["SVM_triangular_kernel"]
+report_fields = ["model", "classifier", "labels", "p", "r", "f1", "seed", "datetime", "author"]
+report_file = "results_binary_classif.csv"
+username = getpass.getuser()
 
 parser = argparse.ArgumentParser()
 
@@ -32,7 +37,7 @@ parser.add_argument('--classifier',
                     Name of the classifier
                     """
                     )
-parser.add_argument('--save_results',
+parser.add_argument('--save_report',
                     required=False,
                     default=True,
                     help="""
@@ -82,15 +87,17 @@ def test_params(**params):
             params["r"] = recall
             params["f1"] = f1
             params["seed"] = seed
-            current_results = pd.DataFrame(params, index=[0])
+            params["datetime"] = datetime.now()
+            params["author"] = username
+            current_results = pd.DataFrame(params, index=[0])[report_fields]
             display_df = display_df.append(current_results)
-            if params["save_results"]:
+            if params["save_report"]:
                 try:
-                    results = pd.read_csv("results_classif.csv")
+                    results = pd.read_csv(report_file)
                 except FileNotFoundError:
                     results = pd.DataFrame()
                 current_results = results.append(current_results, ignore_index=True)
-                current_results.to_csv("results_classif.csv", index=False)
+                current_results.to_csv(report_file, index=False)
         logging.info(
             "average F1 on {} runs: {}±{}".format(
                 display_df.shape[0],
