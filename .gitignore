@@ -1,3 +1,8 @@
+# Data files
+graines_metadata.csv
+non_graines_metadata.csv
+*.gz
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
