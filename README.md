@@ -33,6 +33,11 @@ run
 
 `python main.py --model name_of_your_embedding_model --report`
 
+To try a different classifier, run 
+
+`python main.py --model name_of_your_embedding_model --classifier SVM_RBF_kernel`
+
+
 
 ## Push your code and results
 The [.gitignore](.gitignore) file should prevent you from loading the users personnal data or any Twitter data we collected.
