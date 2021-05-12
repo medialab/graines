@@ -13,7 +13,7 @@ import getpass
 warnings.filterwarnings("ignore", category=UserWarning)
 
 logging.basicConfig(format='%(asctime)s - %(levelname)s : %(message)s', level=logging.INFO)
-report_fields = ["model", "classifier", "labels", "p", "r", "f1", "seed", "datetime", "author"]
+report_fields = ["model", "classifier", "f1", "p", "r", "datetime", "author", "labels", "seed"]
 report_file = "results_binary_classif.csv"
 username = getpass.getuser()
 
@@ -80,9 +80,9 @@ def test_params(**params):
             params["r"] = recall
             params["f1"] = f1
             params["seed"] = seed
-            params["datetime"] = datetime.now()
+            params["datetime"] = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
             params["author"] = username
-            current_results = pd.DataFrame(params, index=[0])[report_fields]
+            current_results = pd.DataFrame(params, index=[0])[report_fields].round(4)
             display_df = display_df.append(current_results)
             if params["report"]:
                 try:
