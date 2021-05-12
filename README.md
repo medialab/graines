@@ -26,7 +26,11 @@ You can run `python tfidf_on_descriptions.py` to get an example of the embedding
 
 ## Run the test
 `python main.py --model name_of_your_embedding_model` (without .npy in the name of the model)
-The results are run 5 times with a different train/test split. The complete report is saved to [results_binary_classif.csv](https://github.com/medialab/graines/blob/main/results_binary_classif.csv).
+The results are run 5 times with a different train/test split. 
+
+To save a complete report to [results_binary_classif.csv](https://github.com/medialab/graines/blob/main/results_binary_classif.csv),
+run `python main.py --model name_of_your_embedding_model --save-report`
+
 
 ## Push your code and results
 The [.gitignore](.gitignore) file should prevent you from loading the users personnal data or any Twitter data we collected.
