@@ -29,7 +29,7 @@ You can run `python tfidf_on_descriptions.py` to get an example of the embedding
 The results are run 5 times with a different train/test split. 
 
 To save a complete report to [results_binary_classif.csv](https://github.com/medialab/graines/blob/main/results_binary_classif.csv),
-run `python main.py --model name_of_your_embedding_model --save-report`
+run `python main.py --model name_of_your_embedding_model --report`
 
 
 ## Push your code and results
