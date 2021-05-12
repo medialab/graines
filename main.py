@@ -34,7 +34,7 @@ parser.add_argument('--classifier',
                     Name of the classifier
                     """
                     )
-parser.add_argument('--save-report',
+parser.add_argument('--report',
                     action='store_true',
                     help="""
                     Whether you want to want to save the precision, recall, f1 score in the result file
@@ -84,7 +84,7 @@ def test_params(**params):
             params["author"] = username
             current_results = pd.DataFrame(params, index=[0])[report_fields]
             display_df = display_df.append(current_results)
-            if params["save-report"]:
+            if params["report"]:
                 try:
                     results = pd.read_csv(report_file)
                 except FileNotFoundError:
@@ -97,7 +97,7 @@ def test_params(**params):
                 display_df[["f1"]].mean().round(2).values[0],
                 display_df[["f1"]].std().round(2).values[0])
         )
-        if params["save-report"]:
+        if params["report"]:
             logging.info("Saved report to {}".format(report_file))
 
 
