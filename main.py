@@ -65,14 +65,15 @@ def main(args):
 def test_params(**params):
     X = np.load(params["model"] + ".npy")
     display_df = pd.DataFrame()
+    data = pd.read_csv(params["labels"])
+    mask = data.label.notna()
+    y = data[mask].label.astype(int).values
+    clf = classifiers[params["classifier"]]
+    logging.info("Start classification. This may take some time...")
 
     if params["objective"] == "test":
-        data = pd.read_csv(params["labels"])
-        y = data.label.astype(int).values
-        logging.info("Start classification. This may take some time...")
         for seed in params.pop("seeds"):
             X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.5, random_state=seed)
-            clf = classifiers[params["classifier"]]
             clf.fit(X_train, y_train)
             y_pred = clf.predict(X_test)
             precision, recall, f1, _ = precision_recall_fscore_support(y_test, y_pred, pos_label=1, average="binary")
@@ -99,6 +100,14 @@ def test_params(**params):
         )
         if params["report"]:
             logging.info("Saved report to {}".format(report_file))
+
+    elif params["objective"] == "classification":
+        clf.fit(X[mask], y)
+        y_pred = clf.predict(X)
+        data["predicted_as_galaxy_member"] = y_pred
+        data.to_csv(params["labels"], index=False)
+        logging.info("{} galaxy members found".format(len(data[data["predicted_as_galaxy_member"] == 1])))
+        logging.info("Predictions saved to {}".format(params["labels"]))
 
 
 if __name__ == '__main__':
