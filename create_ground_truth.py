@@ -18,5 +18,6 @@ if __name__ == '__main__':
         # add 0/1 labels
         graines["label"] = i
         df = df.append(graines)
+    df = df.drop_duplicates("id", keep="last")
     df.to_csv(LABEL_FILE_NAME, index=False)
     logging.info("Saved labels to {}".format(LABEL_FILE_NAME))
