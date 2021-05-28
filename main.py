@@ -1,4 +1,4 @@
-from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.model_selection import train_test_split
 from sklearn.metrics import precision_recall_fscore_support
 import pandas as pd
 import numpy as np
@@ -16,6 +16,8 @@ logging.basicConfig(format='%(asctime)s - %(levelname)s : %(message)s', level=lo
 report_fields = ["model", "classifier", "f1", "p", "r", "datetime", "author", "labels", "seed"]
 report_file = "results_binary_classif.csv"
 username = getpass.getuser()
+SEEDS = [628, 11, 1008, 2993, 559]
+models_trained_on_annotated_data = ["bert_fitted_on_descriptions"]
 
 parser = argparse.ArgumentParser()
 
@@ -59,11 +61,12 @@ parser.add_argument('--labels',
 
 
 def main(args):
-    test_params(**args, seeds=[628, 11, 1008, 2993, 559])
+    test_params(**args, seeds=SEEDS)
 
 
 def test_params(**params):
-    X = np.load(params["model"] + ".npy")
+    if params["model"] not in models_trained_on_annotated_data or params["objective"] == "classification":
+        X = np.load(params["model"] + ".npy")
     display_df = pd.DataFrame()
     data = pd.read_csv(params["labels"])
     mask = data.label.notna()
@@ -73,25 +76,30 @@ def test_params(**params):
 
     if params["objective"] == "test":
         for seed in params.pop("seeds"):
-            X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.5, random_state=seed)
-            clf.fit(X_train, y_train)
-            y_pred = clf.predict(X_test)
-            precision, recall, f1, _ = precision_recall_fscore_support(y_test, y_pred, pos_label=1, average="binary")
-            params["p"] = precision
-            params["r"] = recall
-            params["f1"] = f1
-            params["seed"] = seed
-            params["datetime"] = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
-            params["author"] = username
-            current_results = pd.DataFrame(params, index=[0])[report_fields].round(4)
-            display_df = display_df.append(current_results)
-            if params["report"]:
-                try:
-                    results = pd.read_csv(report_file)
-                except FileNotFoundError:
-                    results = pd.DataFrame()
-                current_results = results.append(current_results, ignore_index=True)
-                current_results.to_csv(report_file, index=False)
+            try:
+                if params["model"] in models_trained_on_annotated_data:
+                    X = np.load(params["model"] + str(seed) + ".npy")
+                X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.5, random_state=seed)
+                clf.fit(X_train, y_train)
+                y_pred = clf.predict(X_test)
+                precision, recall, f1, _ = precision_recall_fscore_support(y_test, y_pred, pos_label=1, average="binary")
+                params["p"] = precision
+                params["r"] = recall
+                params["f1"] = f1
+                params["seed"] = seed
+                params["datetime"] = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+                params["author"] = username
+                current_results = pd.DataFrame(params, index=[0])[report_fields].round(4)
+                display_df = display_df.append(current_results)
+                if params["report"]:
+                    try:
+                        results = pd.read_csv(report_file)
+                    except FileNotFoundError:
+                        results = pd.DataFrame()
+                    current_results = results.append(current_results, ignore_index=True)
+                    current_results.to_csv(report_file, index=False)
+            except FileNotFoundError:
+                break
         logging.info(
             "average F1 on {} runs: {}±{}".format(
                 display_df.shape[0],
