@@ -16,7 +16,12 @@ if __name__ == '__main__':
         for int_val in ["tweets", "followers", "friends", "likes", "lists", "timestamp_utc"]:
             graines[int_val] = graines[int_val].astype(int)
         # add 0/1 labels
-        graines["label"] = i
+        if "graine" in graines.columns:
+            graines["graine"] = graines["graine"].fillna(i).astype(str)
+            graines["label"] = graines["graine"]
+            graines.loc[graines.graine.str.startswith("?"), "label"] = 0
+        else:
+            graines["label"] = i
         df = df.append(graines)
     df = df.drop_duplicates("id", keep="last")
     df.to_csv(LABEL_FILE_NAME, index=False)
