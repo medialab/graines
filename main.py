@@ -1,5 +1,6 @@
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import precision_recall_fscore_support
+from sklearn.model_selection import ShuffleSplit
 import pandas as pd
 import numpy as np
 import argparse
@@ -45,10 +46,10 @@ parser.add_argument('--report',
                     )
 parser.add_argument('--objective',
                     required=False,
-                    choices=["test", "classification"],
+                    choices=["test", "difficult_cases", "classification"],
                     default="test",
                     help="""
-                    Whether you want to test your embedding or do the final classification of users
+                    Whether you want to test your embedding on all annotated data, test it on difficult cases, or do the final classification of users
                     """
                     )
 parser.add_argument('--labels',
@@ -59,6 +60,15 @@ parser.add_argument('--labels',
                     """
                     )
 
+def evaluate(y_test, y_pred, params, seed):
+    precision, recall, f1, _ = precision_recall_fscore_support(y_test, y_pred, pos_label=1, average="binary")
+    params["p"] = precision
+    params["r"] = recall
+    params["f1"] = f1
+    params["seed"] = seed
+    params["datetime"] = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+    params["author"] = username
+    return params
 
 def main(args):
     test_params(**args, seeds=SEEDS)
@@ -82,13 +92,7 @@ def test_params(**params):
                 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.5, random_state=seed)
                 clf.fit(X_train, y_train)
                 y_pred = clf.predict(X_test)
-                precision, recall, f1, _ = precision_recall_fscore_support(y_test, y_pred, pos_label=1, average="binary")
-                params["p"] = precision
-                params["r"] = recall
-                params["f1"] = f1
-                params["seed"] = seed
-                params["datetime"] = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
-                params["author"] = username
+                params = evaluate(y_test, y_pred, params, seed)
                 current_results = pd.DataFrame(params, index=[0])[report_fields].round(4)
                 display_df = display_df.append(current_results)
                 if params["report"]:
@@ -108,6 +112,25 @@ def test_params(**params):
         )
         if params["report"]:
             logging.info("Saved report to {}".format(report_file))
+
+    elif params["objective"] == "difficult_cases":
+        mask = data.graine.notna()
+        difficult_cases = data[mask]
+        y = np.array(y)
+        partial_X_train, X_test, partial_y_train, y_test, partial_indices_train, indices_test = train_test_split(
+            X[mask], y[mask], difficult_cases.index, test_size=.5, random_state=0
+        )
+        data_test = difficult_cases.loc[indices_test]
+        X_train = np.concatenate((partial_X_train, X[~mask]))
+        y_train = np.concatenate((partial_y_train, y[~mask]))
+        clf.fit(X_train, y_train)
+        y_pred = clf.predict(X[data_test.index])
+        params = evaluate(y_test, y_pred, params, 2021)
+        logging.info("Results on difficult cases: F1: {}, p: {}, r: {}".format(params["f1"], params["p"], params["r"]))
+        data_test["predicted_as_galaxy_member"] = y_pred
+        data_test.to_csv("prediction.csv", index=False)
+        logging.info("{} galaxy members found".format(len(data_test[data_test["predicted_as_galaxy_member"] == 1])))
+        logging.info("Predictions saved to {}".format("prediction.csv"))
 
     elif params["objective"] == "classification":
         clf.fit(X[mask], y)
