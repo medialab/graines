@@ -37,12 +37,15 @@ To try a different classifier, run
 
 `python main.py --model name_of_your_embedding_model --classifier SVM_RBF_kernel`
 
+To test the code only on difficult cases, run
+
+`python main.py --model name_of_your_embedding_model --objective difficult_cases`
+
 
 
 ## Push your code and results
 The [.gitignore](.gitignore) file should prevent you from loading the users personnal data or any Twitter data we collected.
 ```
-git add .
-git commit -m "name of your commit"
+git commit -am "name of your commit"
 git push
 ```
