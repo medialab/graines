@@ -13,14 +13,14 @@ cd graines
 * run `pip install -r requirements.txt`
 
 ## Create the ground truth
-* locate the `non_graines_metadata.csv` and `graines_metadata.csv` files inside the `graines` repo
+* Move the `non_graines_metadata.csv` and `graines_metadata.csv` files inside the `graines` repo
 * run `python create_ground_truth.py`
 * the ground truth is saved in a csv file : "`graines_et_non_graines.csv`". 
 The seeds get the label 1 and the non-seeds the label 0.
 
 ## Create your own embeddings
 Have a look at the [tfidf_on_descriptions.py](https://github.com/medialab/graines/blob/main/tfidf_on_descriptions.py) file: the matrix should be saved
-as a `name_of_your_embedding_model.npy` matrix, and have exactly 411 rows. 
+as a `name_of_your_embedding_model.npy` matrix, and have exactly 411 rows. Alternatively [topo_count.py](https://github.com/medialab/graines/blob/main/topo_count.py) measures the topoogical features of candidates.
 The vectors corresponding to each user should be in the same order as the users in `graines_et_non_graines.csv`.
 You can run `python tfidf_on_descriptions.py` to get an example of the embedding matrix.
 
