@@ -2,7 +2,7 @@
 from sentence_transformers import SentenceTransformer
 import pickle
 
-model = SentenceTransformer('distilroberta-base-paraphrase-v1')
+model = SentenceTransformer('distiluse-base-multilingual-cased')
 
 def bert_embedding(corpus, save=True):
 	embeddings = model.encode(corpus, show_progress_bar=True)
