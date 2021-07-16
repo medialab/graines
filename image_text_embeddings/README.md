@@ -1,6 +1,6 @@
 # Image Embeddings
 * run `python image_extract.py` to extract images from twitter profiles, from the file: 'graines_et_non_graines.csv'et store them into a 'content/' directory
-* run `python image_embedder.py` to read images from the 'content/' directory and output an 'image_embedding.pickle' file, a image.png for visualization of the content, an images_urls.csv file and a report.csv file (the exraction is made thank to the [Minet Library](https://medialab.sciencespo.fr/en/tools/minet/).
+* run `python image_embedder.py` to read images from the 'content/' directory and output an 'image_embedding.pickle' file, a image.png for visualization of the content, an 'images_urls.csv' file and a 'report.csv' file (the exraction is made thank to the [Minet Library](https://medialab.sciencespo.fr/en/tools/minet/).
 
 # Text Embeddings
 * run `python text_embedder.py` to embed text from the 'graines_et_non_graines.csv' file from 'screen_name' and 'text' columns concatenated and output an 'embeddings.pickle' file
