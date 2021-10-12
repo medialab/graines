@@ -3,6 +3,9 @@
 *.npy
 *.csv
 !results_binary_classif.csv
+data/
+image/
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
