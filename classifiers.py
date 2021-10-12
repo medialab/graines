@@ -9,8 +9,4 @@ def triangular_kernel(X, Y):
 triangular = SVC(kernel=triangular_kernel, C=3)
 rbf = SVC()
 
-classifiers = {
-    'SVM_triangular_kernel': triangular,
-    'SVM_RBF_kernel': rbf
-}
-
+classifiers = {"SVM_triangular_kernel": triangular, "SVM_RBF_kernel": rbf}

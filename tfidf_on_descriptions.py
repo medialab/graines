@@ -6,7 +6,7 @@ from sklearn.pipeline import make_pipeline
 import pandas as pd
 import numpy as np
 
-corpus = pd.read_csv(LABEL_FILE_NAME).description.fillna("").tolist()
+corpus = pd.read_csv(LABEL_FILE_NAME)["description"].fillna("").tolist()
 vectorizer = TfidfVectorizer()
 X = vectorizer.fit_transform(corpus)
 svd = TruncatedSVD(n_components=300, random_state=42)

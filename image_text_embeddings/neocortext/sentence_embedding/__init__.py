@@ -1,1 +1,0 @@
-from neocortext import sentence_embedding
