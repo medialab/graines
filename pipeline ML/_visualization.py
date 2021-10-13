@@ -38,6 +38,6 @@ if __name__ == "__main__":
 
     X = np.concatenate((X_bert, X_tfidf, X_image), axis=1)
 
-    fig = visualize_emb(X_tfidf, data, hover_data=["description"])
+    fig = visualize_emb(X, data, hover_data=["description"])
     fig.show()
     fig.write_html("figures/file.html")
