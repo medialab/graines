@@ -99,6 +99,8 @@ if __name__ == "__main__":
     X_bert = np.load("embeddings/bert.npy", allow_pickle=True)
     X_image = np.load("embeddings/full_profile_pictures.npy", allow_pickle=True)
     X_features = np.load("embeddings/features.npy", allow_pickle=True)
+
+    # Concat the data
     X = np.concatenate((X_bert, X_tfidf, X_image, X_features), axis=1)
 
     data = pd.read_csv("data/data_ready.csv")
