@@ -27,7 +27,9 @@ def resize(
         - A new directory that contains resized images
     """
     # Create a new directory
-    os.makedirs(target_directory)
+
+    if not os.path.exists(target_directory):
+        os.makedirs(target_directory)
 
     # Resize images
     path_images = glob.glob(images_path + "/*")
@@ -170,5 +172,16 @@ def get_full_image_emb(
 
 
 if __name__ == "__main__":
-    emb = image_embedding("image/images_preprocessed")
-    np.save("embeddings/profile_pictures.npy", emb)
+    # resize(images_path="image/downloaded")
+    # emb = image_embedding("image/images_preprocessed")
+    # np.save("embeddings/profile_pictures.npy", emb)
+
+    data = pd.read_csv("data/data_ready.csv")
+    list_ids = glob.glob("image/images_preprocessed/*")
+    list_ids = [
+        x.split("image/images_preprocessed/")[1].split(".")[0] for x in list_ids
+    ]
+
+    emb = np.load("embeddings/profile_pictures.npy")
+    fi_emb = get_full_image_emb(data, emb, list_ids, column_id="screen_name")
+    np.save("embeddings/full_profile_pictures.npy", fi_emb)

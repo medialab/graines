@@ -17,6 +17,7 @@ classifiers = {
 
 
 def classifier_pipeline(
+    type_of_algo: str,
     X: np.array,
     y: np.array,
     classifier_model: str = "SVM_triangular_kernel",
@@ -73,6 +74,7 @@ def classifier_pipeline(
             current_results["seed"] = seed
             current_results["datetime"] = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
             current_results = pd.DataFrame(current_results, index=[0])
+            current_results["type_of_algo"] = type_of_algo
 
             display_df = display_df.append(current_results)
             display_df = display_df.reset_index(drop=True)
@@ -91,9 +93,26 @@ def classifier_pipeline(
 if __name__ == "__main__":
 
     # Load Data
-    X = np.load("data/final_X.npy", allow_pickle=True)
-    y = np.load("data/final_y.npy", allow_pickle=True)
-    report = classifier_pipeline(X, y, seeds=[3, 7, 8, 9, 10, 11])
-    report.to_csv("data/report.csv")
+    X_tfidf = np.load("embeddings/tfidf.npy", allow_pickle=True)
+    X_bert = np.load("embeddings/bert.npy", allow_pickle=True)
+    X_image = np.load("embeddings/full_profile_pictures.npy", allow_pickle=True)
+    X_features = np.load("embeddings/features.npy", allow_pickle=True)
+
+    X = np.concatenate((X_bert, X_tfidf, X_image, X_features), axis=1)
+
+    data = pd.read_csv("data/data_ready.csv")
+    # Get the Y labels
+    map_code = {"non-graine": 0, "graine": 1}
+    data["label"] = data["sentiment"].map(map_code)
+
+    y = list(data["label"])
+
+    full_report = pd.read_csv("report.csv", index_col=[0])
+    report = classifier_pipeline(
+        type_of_algo="all", X=X, y=y, seeds=[3, 7, 8, 9, 10, 11]
+    )
+
+    full_report = full_report.append(report)
+    full_report.to_csv("report.csv")
 
     print(report)

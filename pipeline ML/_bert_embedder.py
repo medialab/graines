@@ -2,9 +2,7 @@ import pandas as pd
 import numpy as np
 from sentence_transformers import SentenceTransformer
 
-data = pd.read_csv(
-    "data/2000_followers_graines_version_2021_09_21 (1).csv", index_col=[0]
-)
+data = pd.read_csv("data/data_ready.csv", index_col=[0])
 data_tfidf = data[["screen_name", "description", "name"]]
 data_tfidf = data_tfidf.fillna(" ")
 data_tfidf = (

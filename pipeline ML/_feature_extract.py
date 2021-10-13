@@ -22,9 +22,7 @@ def features_emb(data: pd.DataFrame, features: list) -> np.array:
 
 
 if __name__ == "__main__":
-    data = pd.read_csv(
-        "data/2000_followers_graines_version_2021_09_21 (1).csv", index_col=[0]
-    )
+    data = pd.read_csv("data/data_ready.csv", index_col=[0])
 
     data_feat = features_emb(
         data, features=["verified", "followers", "friends", "friends", "lists"]

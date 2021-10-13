@@ -81,8 +81,6 @@ def extract_images_from_profile(tweets: pd.DataFrame, id_column: str = "screen_n
 
 
 if __name__ == "__main__":
-    data = pd.read_csv(
-        "data/2000_followers_graines_version_2021_09_21 (1).csv", index_col=[0]
-    )
+    data = pd.read_csv("data/data_ready.csv", index_col=[0])
 
     extract_images_from_profile(tweets=data, id_column="screen_name")
