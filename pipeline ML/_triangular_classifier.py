@@ -4,6 +4,8 @@ from datetime import datetime
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import precision_recall_fscore_support, euclidean_distances
 from sklearn.svm import SVC
+from sklearn.manifold import TSNE
+from sklearn.decomposition import PCA
 
 
 def triangular_kernel(X, Y):
@@ -54,7 +56,7 @@ def classifier_pipeline(
 
             # Train Test Split and Predict
             X_train, X_test, y_train, y_test = train_test_split(
-                X, y, test_size=0.6, random_state=seed
+                X, y, test_size=0.8, random_state=seed
             )
 
             # Predict
@@ -97,19 +99,15 @@ if __name__ == "__main__":
     X_bert = np.load("embeddings/bert.npy", allow_pickle=True)
     X_image = np.load("embeddings/full_profile_pictures.npy", allow_pickle=True)
     X_features = np.load("embeddings/features.npy", allow_pickle=True)
-
     X = np.concatenate((X_bert, X_tfidf, X_image, X_features), axis=1)
 
     data = pd.read_csv("data/data_ready.csv")
-    # Get the Y labels
-    map_code = {"non-graine": 0, "graine": 1}
-    data["label"] = data["sentiment"].map(map_code)
-
     y = list(data["label"])
 
+    # Report analysis
     full_report = pd.read_csv("report.csv", index_col=[0])
     report = classifier_pipeline(
-        type_of_algo="all", X=X, y=y, seeds=[3, 7, 8, 9, 10, 11]
+        type_of_algo="tf-idf_pca", X=X, y=y, seeds=[3, 7, 8, 9, 10, 11]
     )
 
     full_report = full_report.append(report)
