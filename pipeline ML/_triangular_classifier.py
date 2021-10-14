@@ -58,7 +58,7 @@ def classifier_pipeline(
 
             # Train Test Split and Predict
             X_train, X_test, y_train, y_test = train_test_split(
-                X, y, test_size=0.8, random_state=seed
+                X, y, test_size=0.3, random_state=seed
             )
 
             X_train = scaler.fit_transform(X_train)
@@ -109,16 +109,13 @@ if __name__ == "__main__":
 
     # Concat the data
     X = np.concatenate((X_bert, X_tfidf, X_image, X_features, X_topo), axis=1)
-    X = X_topo
 
     data = pd.read_csv("data/data_ready.csv")
     y = list(data["label"])
 
     # Report analysis
     full_report = pd.read_csv("report.csv", index_col=[0])
-    report = classifier_pipeline(
-        type_of_algo="topo", X=X, y=y, seeds=[3, 7, 8, 9, 10, 11]
-    )
+    report = classifier_pipeline(type_of_algo="topo", X=X, y=y, seeds=[12, 13, 14, 15])
 
     full_report = full_report.append(report)
     full_report.to_csv("report.csv")
