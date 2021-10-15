@@ -49,9 +49,9 @@ def bayesian_pipeline(
 if __name__ == "__main__":
     all_followers = pd.read_csv("data/followers_metadata_version_2021_09_21.csv")
     data = pd.read_csv("data/data_ready.csv", index_col=[0])
-    all_followers_graines = all_followers["graines_in_friends"].str.replace("|", " ")
-    data_graines = data["graines_in_friends"].str.replace("|", " ")
-    all_followers_friends = list(all_followers_graines.values)
-    X = list(data_graines.values)
-    y = list(data["label"])
+    all_followers_graines = all_followers["graines_in_friends"].str.replace("|", " ").values
+    data_graines = data["graines_in_friends"].apply(lambda x: " ".join(eval(x))).values
+    all_followers_friends = list(all_followers_graines)
+    X = list(data_graines)
+    y = list(data["label"].values)
     bayesian_pipeline(all_followers_friends, X, y, classifier="MultinomialNB")
