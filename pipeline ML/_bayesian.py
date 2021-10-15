@@ -10,14 +10,14 @@ def bayesian_pipeline(
     X: list, classifier="MultinomialNB", seeds=[3, 7, 8, 9, 10, 11]
 ) -> np.array:
     """Produce an embedding based on the probability of being a seed computed with a Bayesian classifier
+    g
+        Args:
+            X (list): list of texts to embed
+            classifier (str): 'MultinomialNB' or 'GaussianNB'
+            seeds (list):
 
-    Args:
-        X (list): list of texts to embed
-        classifier (str): 'MultinomialNB' or 'GaussianNB'
-        seeds (list):
-
-    Returns:
-         np.array: the tfidf embeddings
+        Returns:
+             np.array: the tfidf embeddings
     """
 
     vectorizer = TfidfVectorizer()

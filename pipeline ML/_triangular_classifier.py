@@ -156,9 +156,9 @@ if __name__ == "__main__":
 
     full_report = pd.read_csv("report.csv", index_col=[0])
 
-    X = X_topo
+    X = X_tfidf
     report = classifier_pipeline(
-        type_of_algo="topo",
+        type_of_algo="bert",
         X=X,
         y=y,
         seeds=[1, 2, 3, 4, 5, 6],
@@ -166,3 +166,5 @@ if __name__ == "__main__":
     )
     full_report = full_report.append(report)
     full_report.to_csv("report.csv")
+
+    print(report)
