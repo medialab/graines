@@ -108,14 +108,16 @@ if __name__ == "__main__":
     X_topo = np.load("embeddings/topo.npy", allow_pickle=True)
 
     # Concat the data
-    X = np.concatenate((X_bert, X_tfidf, X_image, X_features, X_topo), axis=1)
+    X = np.concatenate((X_bert, X_tfidf), axis=1)
 
     data = pd.read_csv("data/data_ready.csv")
     y = list(data["label"])
 
     # Report analysis
     full_report = pd.read_csv("report.csv", index_col=[0])
-    report = classifier_pipeline(type_of_algo="topo", X=X, y=y, seeds=[12, 13, 14, 15])
+    report = classifier_pipeline(
+        type_of_algo="bert", X=X, y=y, seeds=[1, 2, 3, 4, 5, 6]
+    )
 
     full_report = full_report.append(report)
     full_report.to_csv("report.csv")
