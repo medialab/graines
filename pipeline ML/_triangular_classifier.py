@@ -7,6 +7,7 @@ from sklearn.svm import SVC
 from sklearn.manifold import TSNE
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
+import os
 
 
 def triangular_kernel(X, Y):
@@ -24,7 +25,7 @@ def classifier_pipeline(
     X: np.array,
     y: np.array,
     classifier_model: str = "SVM_triangular_kernel",
-    seeds: list = [2, 3, 4, 5],
+    seeds: list = [12, 13, 14, 15],
     objective: str = "report",
 ) -> pd.DataFrame:
 
@@ -55,6 +56,10 @@ def classifier_pipeline(
 
         display_df = pd.DataFrame()
         for seed in seeds:
+            bayes_file_path = "embeddings/bayesian_proba_MultinomialNB_{}.npy".format(seed)
+            if os.path.isfile(bayes_file_path):
+                X_bayes = np.load(bayes_file_path)
+                X =  np.concatenate((X, X_bayes), axis=1)
 
             # Train Test Split and Predict
             X_train, X_test, y_train, y_test = train_test_split(
