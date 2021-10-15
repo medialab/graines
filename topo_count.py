@@ -83,8 +83,6 @@ for id, fol, fri in zip(dg["id"], dg["followers"], dg["friends"]):
         )
 
 
-# In[93]:
-
 pd.DataFrame.from_dict(topo).transpose().to_csv("topology.csv")
 
 vector_topo = pd.DataFrame.from_dict(topo).transpose()

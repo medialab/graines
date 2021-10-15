@@ -8,8 +8,13 @@ import pandas as pd
 import scipy
 
 
-
-def bayesian_pipeline(all_followers: list, X: list, y: list, classifier="MultinomialNB", seeds=[12, 13, 14, 15]):
+def bayesian_pipeline(
+    all_followers: list,
+    X: list,
+    y: list,
+    classifier="MultinomialNB",
+    seeds=[12, 13, 14, 15],
+):
     """Produce an embedding based on the probability of being a seed computed with a Bayesian classifier
     Args:
         all_followers: list of graines in friends for the entire dataset
