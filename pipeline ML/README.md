@@ -4,7 +4,7 @@ This is a pipeline to execute different actions:
 - Classification
 
 Description of the files:
-- data_preprocessing.ipynb: merging annotated tasks and features to prepare for embeddings and create the dataset data/data_ready.csv
+- _preprocessing.py: merging annotated tasks and features to prepare for embeddings and create the dataset data/data_ready.csv
 - _bert_embedder.py: takes the dataset, filter the features, concat them and output a np.array
 embedding with bert SentenceTransformer -> (embeddings/bert.npy)
 - _tfidf.py: takes the dataset, filter the features, concat them and output a np.array
