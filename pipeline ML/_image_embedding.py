@@ -1,6 +1,6 @@
 import pandas as pd
+import numpy as np
 import glob
-import pickle
 import os
 from tqdm import tqdm
 from PIL import Image
@@ -8,7 +8,6 @@ from sentence_transformers import SentenceTransformer
 from sklearn.manifold import TSNE
 import matplotlib.pyplot as plt
 from matplotlib.offsetbox import AnnotationBbox, OffsetImage
-import numpy as np
 
 
 def resize(
@@ -172,10 +171,12 @@ def get_full_image_emb(
 
 
 if __name__ == "__main__":
-    # resize(images_path="image/downloaded")
-    # emb = image_embedding("image/images_preprocessed")
-    # np.save("embeddings/profile_pictures.npy", emb)
 
+    resize(images_path="image/downloaded")
+    emb = image_embedding("image/images_preprocessed")
+    np.save("embeddings/profile_pictures.npy", emb)
+
+    # Get the full embeddings
     data = pd.read_csv("data/data_ready.csv")
     list_ids = glob.glob("image/images_preprocessed/*")
     list_ids = [

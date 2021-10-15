@@ -6,7 +6,9 @@ import numpy as np
 import pandas as pd
 
 
-def bayesian_pipeline(X: list, classifier="MultinomialNB", seeds=[3, 7, 8, 9, 10, 11]) -> np.array:
+def bayesian_pipeline(
+    X: list, classifier="MultinomialNB", seeds=[3, 7, 8, 9, 10, 11]
+) -> np.array:
     """Produce an embedding based on the probability of being a seed computed with a Bayesian classifier
 
     Args:

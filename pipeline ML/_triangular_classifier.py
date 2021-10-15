@@ -100,26 +100,69 @@ def classifier_pipeline(
 
 if __name__ == "__main__":
 
-    # Load Data
+    # Load Computed embeddings
     X_tfidf = np.load("embeddings/tfidf.npy", allow_pickle=True)
     X_bert = np.load("embeddings/bert.npy", allow_pickle=True)
     X_image = np.load("embeddings/full_profile_pictures.npy", allow_pickle=True)
     X_features = np.load("embeddings/features.npy", allow_pickle=True)
     X_topo = np.load("embeddings/topo.npy", allow_pickle=True)
 
-    # Concat the data
-    X = np.concatenate((X_bert, X_tfidf), axis=1)
+    dict_emb = {
+        "tfidf": X_tfidf,
+        "bert": X_bert,
+        "images": X_image,
+        "features": X_features,
+        "topology": X_topo,
+    }
+
+    '''def make_classification(emb_type: list, dict_emb: dict, y: list):
+        """This functions takes as an input the desired embeddings and outputs
+        the results of the classification as a report and as a prediction
+
+        Args:
+            emb_type (list): example: ['bert', 'tfidf]
+            dict_emb (dict): the table of name and related embeddings
+            y (list): the labels
+
+        Returns:
+            [type]: outputs a report and the predictions of the algorithm
+        """
+
+        X = np.array(object)
+        for x in emb_type:
+            emb = dict_emb[x]
+            X = np.concatenate((X, emb), axis=1)
+            full_report = pd.read_csv("report.csv", index_col=[0])
+            report = classifier_pipeline(
+                type_of_algo="-".join(emb_type),
+                X=X,
+                y=y,
+                seeds=[1, 2, 3, 4, 5, 6],
+                objective="report",
+            )
+            full_report = full_report.append(report)
+            full_report.to_csv("report.csv")
+            y_pred = classifier_pipeline(
+                type_of_algo="-".join(emb_type),
+                X=X,
+                y=y,
+                seeds=[1, 2, 3, 4, 5, 6],
+                objective="classification",
+            )
+        return report, y_pred'''
 
     data = pd.read_csv("data/data_ready.csv")
     y = list(data["label"])
 
-    # Report analysis
     full_report = pd.read_csv("report.csv", index_col=[0])
-    report = classifier_pipeline(
-        type_of_algo="bert", X=X, y=y, seeds=[1, 2, 3, 4, 5, 6]
-    )
 
+    X = X_topo
+    report = classifier_pipeline(
+        type_of_algo="topo",
+        X=X,
+        y=y,
+        seeds=[1, 2, 3, 4, 5, 6],
+        objective="report",
+    )
     full_report = full_report.append(report)
     full_report.to_csv("report.csv")
-
-    print(report)

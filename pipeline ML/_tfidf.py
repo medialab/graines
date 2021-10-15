@@ -10,7 +10,7 @@ def tfidf_pipeline(X: list) -> np.array:
     """This function embed text based on tf-idf functions
 
     Args:
-        corpus ([type]): list of texts to embed
+        corpus ([list]): list of texts to embed
 
     Returns:
          np.array: the tfidf embeddings
