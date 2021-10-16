@@ -8,6 +8,7 @@ from sklearn.manifold import TSNE
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 import os
+from config import seeds, type_of_model
 
 
 def triangular_kernel(X, Y):
@@ -21,7 +22,7 @@ classifiers = {
 
 
 def classifier_pipeline(
-    type_of_algo: str,
+    type_of_algo: list,
     X: np.array,
     y: np.array,
     classifier_model: str = "SVM_triangular_kernel",
@@ -86,7 +87,7 @@ def classifier_pipeline(
             current_results["seed"] = seed
             current_results["datetime"] = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
             current_results = pd.DataFrame(current_results, index=[0])
-            current_results["type_of_algo"] = type_of_algo
+            current_results["type_of_algo"] = "|".join(type_of_algo)
 
             display_df = display_df.append(current_results)
             display_df = display_df.reset_index(drop=True)
@@ -161,15 +162,15 @@ if __name__ == "__main__":
 
     full_report = pd.read_csv("report.csv", index_col=[0])
 
-    X = X_tfidf
+    X = np.concatenate([dict_emb[model] for model in type_of_model], axis=1)
     report = classifier_pipeline(
-        type_of_algo="bert",
+        type_of_algo=type_of_model,
         X=X,
         y=y,
-        seeds=[1, 2, 3, 4, 5, 6],
+        seeds=seeds,
         objective="report",
     )
     full_report = full_report.append(report)
     full_report.to_csv("report.csv")
 
-    print(report)
+    print(report[["precision", "recall", "f1", "type_of_algo"]])
