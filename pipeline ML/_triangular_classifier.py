@@ -58,7 +58,7 @@ def classifier_pipeline(
         display_df = pd.DataFrame()
         for seed in seeds:
             bayes_file_path = "embeddings/bayesian_proba_MultinomialNB_{}.npy".format(seed)
-            if os.path.isfile(bayes_file_path):
+            if "bayesian" in type_of_algo and os.path.isfile(bayes_file_path):
                 X_bayes = np.load(bayes_file_path)
                 X =  np.concatenate((X, X_bayes), axis=1)
 
@@ -162,7 +162,7 @@ if __name__ == "__main__":
 
     full_report = pd.read_csv("report.csv", index_col=[0])
 
-    X = np.concatenate([dict_emb[model] for model in type_of_model], axis=1)
+    X = np.concatenate([dict_emb[model] for model in type_of_model if model != "bayesian"], axis=1)
     report = classifier_pipeline(
         type_of_algo=type_of_model,
         X=X,

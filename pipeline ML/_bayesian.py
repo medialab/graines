@@ -1,11 +1,10 @@
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn import naive_bayes
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import Normalizer
-from sklearn.pipeline import make_pipeline
 import numpy as np
 import pandas as pd
 import scipy
+from config import seeds
 
 
 def bayesian_pipeline(
@@ -57,4 +56,4 @@ if __name__ == "__main__":
     all_followers_friends = list(all_followers_graines)
     X = list(data_graines)
     y = list(data["label"].values)
-    bayesian_pipeline(all_followers_friends, X, y, classifier="MultinomialNB")
+    bayesian_pipeline(all_followers_friends, X, y, classifier="MultinomialNB", seeds=seeds)
