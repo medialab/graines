@@ -18,10 +18,13 @@ def bayesian_pipeline(
     """Produce an embedding based on the probability of being a seed computed with a Bayesian classifier
     Args:
         all_followers: list of graines in friends for the entire dataset
-        X (list): llist of graines in friends for the annotated dataset
+        X (list): list of graines in friends for the annotated dataset
         y (list): target values
         classifier (str): 'MultinomialNB' or 'GaussianNB'
         seeds (list):
+
+    Returns:
+
 
     """
 

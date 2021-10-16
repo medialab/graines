@@ -54,5 +54,4 @@ foll_grain = foll_grain.reset_index()
 
 # remerge with the datase
 new_data = pd.merge(foll_grain, final, on="user_id")
-
 new_data.to_csv("data/data_ready.csv")
