@@ -167,9 +167,17 @@ for id,fol,fri in zip(dg['user_id'],dg['followers'], dg['friends']):
     #print (np.array(float(len(net.get(str(id),[]))/(fri+1)),float(len(net_fri.get(str(id),[]))/(fol+1))))
     if 1:#fol>0:
         topo[id]={}
+        topo[id]['raw number of followers']=fol
+        topo[id]['raw number of friends']=fri
+
+
         topo[id]['raw number graines following me']=float(len(net_fri.get(str(id),[])))
         topo[id]['raw number of graines I follow']=float(len(net_fol.get(str(id),[])))
         
+        topo[id]['normalized number of graines following me']=float(sum(net_fri_norm.get(str(id),[])))
+        topo[id]['normalized number of graines I follow']=float(sum(net_fol_norm.get(str(id),[])))
+
+
 
         topo[id]['proportion of graines following me']=float(len(net_fri.get(str(id),[]))/(fol+1))
         topo[id]['normalized proportion of graines following me']=float(sum(net_fri_norm.get(str(id),[]))/(fol+1))
@@ -181,7 +189,13 @@ for id,fol,fri in zip(dg['user_id'],dg['followers'], dg['friends']):
 # In[93]:
 
 
-pd.DataFrame.from_dict(topo).transpose().to_csv('topology.csv')
+
+
+
+# In[93]:
+
+
+#pd.DataFrame.from_dict(topo).transpose().to_csv('topology.csv')
 
 vector_topo=pd.DataFrame.from_dict(topo).transpose()
 
