@@ -174,3 +174,10 @@ if __name__ == "__main__":
     full_report.to_csv("report.csv")
 
     print(report[["precision", "recall", "f1", "type_of_algo"]])
+    print(
+        "average F1 on {} runs: {}±{}".format(
+            report.shape[0],
+            report[["f1"]].mean().round(2).values[0],
+            report[["f1"]].std().round(2).values[0])
+    )
+	
