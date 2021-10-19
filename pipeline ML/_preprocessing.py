@@ -38,20 +38,21 @@ final["label"] = final["sentiment"].map(map_code)
 # Add graines in followers
 
 foll = pd.read_csv(
-    "data/followers_graines_version_2021_09_21.csv",
+    "data/friends_graines.csv.gz",
     index_col=[0],
     low_memory=False,
-    usecols=["twitter_handle", "follower_id"],
+    usecols=["twitter_handle", "friend_id"],
 ).reset_index()
 
 # The followers information of the original dataset is missing
-foll_grain = pd.merge(final, foll, left_on="user_id", right_on="follower_id").drop(
-    "follower_id", axis=1
+foll_grain = pd.merge(final, foll, left_on="user_id", right_on="friend_id").drop(
+    "friend_id", axis=1
 )
 foll_grain = foll_grain.groupby("user_id")["twitter_handle"].agg(["count", list])
 foll_grain.columns = ["count_graines_in_followers", "graines_in_followers"]
 foll_grain = foll_grain.reset_index()
 
-# remerge with the datase
-new_data = pd.merge(foll_grain, final, on="user_id")
+# remerge with the database
+new_data = pd.merge(foll_grain, final, on="user_id", how="right")
+new_data["count_graines_in_followers"] = new_data["count_graines_in_followers"].fillna(0)
 new_data.to_csv("data/data_ready.csv")
