@@ -25,6 +25,6 @@ if __name__ == "__main__":
     data = pd.read_csv("data/data_ready.csv", index_col=[0])
 
     data_feat = features_emb(
-        data, features=["verified", "followers", "friends", "friends", "lists"]
+        data, features=["verified", "followers", "friends", "lists","tweets"]
     )
     np.save("embeddings/features.npy", data_feat)
