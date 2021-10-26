@@ -8,8 +8,10 @@ from config import seeds
 
 
 def bayesian_pipeline(
+    all_friends: list,
+    annotated_friends: list,
     all_followers: list,
-    X: list,
+    annotated_followers: list,
     y: list,
     classifier="MultinomialNB",
     seeds=[12, 13, 14, 15],
@@ -27,9 +29,12 @@ def bayesian_pipeline(
 
     """
 
-    vectorizer = TfidfVectorizer()
-    vectorizer.fit(all_followers)
-    X = vectorizer.transform(X)
+    vectorizer_friends, vectorizer_followers = TfidfVectorizer(), TfidfVectorizer()
+    vectorizer_friends.fit(all_friends)
+    vectorizer_followers.fit(all_followers)
+    vectorized_friends = vectorizer_friends.transform(annotated_friends)
+    vectorized_followers = vectorizer_followers.transform(annotated_followers)
+    X = scipy.sparse.hstack([vectorized_friends, vectorized_followers])
     for seed in seeds:
         X_train, X_test, y_train, y_test = train_test_split(
             X, y, test_size=0.3, random_state=seed
@@ -53,6 +58,14 @@ if __name__ == "__main__":
     annotated_data = pd.read_csv("data/data_ready.csv", index_col=[0])
     all_friends = all_data["graines_in_friends"].str.replace("|", " ", regex=False).values
     annotated_friends = annotated_data["graines_in_friends"].str.replace("|", " ", regex=False).values
-
+    all_followers = all_data[all_data.graines_in_followers.notna()]["graines_in_followers"].str.replace("|", " ").values
+    annotated_followers = annotated_data["graines_in_followers"].fillna("").str.replace("|", " ").values
     y = annotated_data["label"].values
-    bayesian_pipeline(all_friends, annotated_friends, y, classifier="MultinomialNB", seeds=seeds)
+    bayesian_pipeline(all_friends,
+                      annotated_friends,
+                      all_followers,
+                      annotated_followers,
+                      y,
+                      classifier="MultinomialNB",
+                      seeds=seeds
+                      )
