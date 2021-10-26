@@ -161,6 +161,7 @@ if __name__ == "__main__":
     y = list(data["label"])
 
     full_report = pd.read_csv("report.csv", index_col=[0])
+    mean_report = pd.read_csv("mean_report.csv")
 
     X = np.concatenate([dict_emb[model] for model in type_of_model if model != "bayesian"], axis=1)
     report = classifier_pipeline(
@@ -173,11 +174,21 @@ if __name__ == "__main__":
     full_report = full_report.append(report)
     full_report.to_csv("report.csv")
 
+    mean = {}
+    for metric in ["precision", "recall", "f1"]:
+        mean[metric] = "{}±{}".format(
+            report[[metric]].mean().round(2).values[0],
+            report[[metric]].std().round(2).values[0]
+        )
+    for info in ["datetime", "type_of_algo"]:
+        mean[info] = report.iloc[0][info]
+
+    mean = pd.DataFrame(mean, index=[0])
+
+    mean_report = mean_report.append(mean)
+    mean_report.to_csv("mean_report.csv", index=False)
+
     print(report[["precision", "recall", "f1", "type_of_algo"]])
-    print(
-        "average F1 on {} runs: {}±{}".format(
-            report.shape[0],
-            report[["f1"]].mean().round(2).values[0],
-            report[["f1"]].std().round(2).values[0])
-    )
-	
+    print("Average on {} runs:".format(report.shape[0]))
+    print(mean[["precision", "recall", "f1", "type_of_algo"]])
+

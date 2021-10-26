@@ -3,6 +3,8 @@
 *.npy
 *.csv
 !results_binary_classif.csv
+!pipeline ML/mean_report.csv
+!pipeline ML/report.csv
 data/
 image/
 
