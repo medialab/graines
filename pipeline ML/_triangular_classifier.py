@@ -8,7 +8,7 @@ from sklearn.manifold import TSNE
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 import os
-from config import seeds, type_of_model
+from config import seeds, type_of_model, objective
 
 
 def triangular_kernel(X, Y):
@@ -20,6 +20,38 @@ classifiers = {
     "SVM_RBF_kernel": SVC(),
 }
 
+
+def add_bayes(X, type_of_algo, seed):
+    bayes_file_path = "embeddings/bayesian_proba_MultinomialNB_{}.npy".format(seed)
+    if type_of_algo == ["bayesian"]:
+        X = np.load(bayes_file_path)
+    elif "bayesian" in type_of_algo and os.path.isfile(bayes_file_path):
+        X_bayes = np.load(bayes_file_path)
+        X = np.concatenate((X, X_bayes), axis=1)
+    return X
+
+
+def train_classifier(X, y, classifier_model, type_of_algo, seed):
+    scaler = StandardScaler()
+    # Chose classifier
+    clf = classifiers[classifier_model]
+
+    X = add_bayes(X, type_of_algo, seed)
+
+    # Train Test Split
+    X_train, X_test, y_train, y_test, flamboyant_train, flamboyant_test = train_test_split(
+        X, y, not_flamboyant, test_size=0.3, random_state=seed
+    )
+
+    X_test = X_test[flamboyant_test]
+    y_test = np.array(y_test)[flamboyant_test]
+
+    X_train = scaler.fit_transform(X_train)
+    X_test = scaler.fit_transform(X_test)
+
+    # Fit
+    clf.fit(X_train, y_train)
+    return clf, X_test, y_test
 
 def classifier_pipeline(
     type_of_algo: list,
@@ -50,34 +82,12 @@ def classifier_pipeline(
         with the results of the algorithm
     """
 
-    scaler = StandardScaler()
-    # Chose classifier
-    clf = classifiers[classifier_model]
-
     if objective == "report":  # Only compute the report
-
         display_df = pd.DataFrame()
         for seed in seeds:
-            bayes_file_path = "embeddings/bayesian_proba_MultinomialNB_{}.npy".format(seed)
-            if type_of_algo == ["bayesian"]:
-                X = np.load(bayes_file_path)
-            elif "bayesian" in type_of_algo and os.path.isfile(bayes_file_path):
-                X_bayes = np.load(bayes_file_path)
-                X =  np.concatenate((X, X_bayes), axis=1)
-
-            # Train Test Split and Predict
-            X_train, X_test, y_train, y_test, flamboyant_train, flamboyant_test = train_test_split(
-                X, y, not_flamboyant, test_size=0.3, random_state=seed
-            )
-
-            X_test = X_test[flamboyant_test]
-            y_test = np.array(y_test)[flamboyant_test]
-
-            X_train = scaler.fit_transform(X_train)
-            X_test = scaler.fit_transform(X_test)
+            clf, X_test, y_test = train_classifier(X, y, classifier_model, type_of_algo, seed)
 
             # Predict
-            clf.fit(X_train, y_train)
             y_pred = clf.predict(X_test)
 
             # Evaluate the results
@@ -102,10 +112,14 @@ def classifier_pipeline(
 
     # Only predict the values
     elif objective == "classification":
+        seed = seeds[1]
+        scaler = StandardScaler()
+        clf, _, _ = train_classifier(X, y, classifier_model, type_of_algo, seed)
+        X = add_bayes(X, type_of_algo, seed)
         X = scaler.fit_transform(X)
-        clf.fit(X, y)
         y_pred = clf.predict(X)
         return y_pred
+
     else:
         print("Chose a right objective")
 
@@ -174,32 +188,51 @@ if __name__ == "__main__":
         X = np.concatenate([dict_emb[model] for model in type_of_model if model != "bayesian"], axis=1)
     else:
         X = None
-    report = classifier_pipeline(
+    output = classifier_pipeline(
         type_of_algo=type_of_model,
         X=X,
         y=y,
         not_flamboyant=not_flamboyant,
         seeds=seeds,
-        objective="report",
+        objective=objective,
     )
-    full_report = full_report.append(report)
-    full_report.to_csv("report.csv")
 
-    mean = {}
-    for metric in ["precision", "recall", "f1"]:
-        mean[metric] = "{}±{}".format(
-            report[[metric]].mean().round(2).values[0],
-            report[[metric]].std().round(2).values[0]
-        )
-    for info in ["datetime", "type_of_algo"]:
-        mean[info] = report.iloc[0][info]
+    if objective == "report":
+        full_report = full_report.append(output)
+        full_report.to_csv("report.csv")
 
-    mean = pd.DataFrame(mean, index=[0])
+        mean = {}
+        for metric in ["precision", "recall", "f1"]:
+            mean[metric] = "{}±{}".format(
+                output[[metric]].mean().round(2).values[0],
+                output[[metric]].std().round(2).values[0]
+            )
+        for info in ["datetime", "type_of_algo"]:
+            mean[info] = output.iloc[0][info]
 
-    mean_report = mean_report.append(mean)
-    mean_report.to_csv("mean_report.csv", index=False)
+        mean = pd.DataFrame(mean, index=[0])
 
-    print(report[["precision", "recall", "f1", "type_of_algo"]])
-    print("Average on {} runs:".format(report.shape[0]))
-    print(mean[["precision", "recall", "f1", "type_of_algo"]])
+        mean_report = mean_report.append(mean)
+        mean_report.to_csv("mean_report.csv", index=False)
+
+        print(output[["precision", "recall", "f1", "type_of_algo"]])
+        print("Average on {} runs:".format(output.shape[0]))
+        print(mean[["precision", "recall", "f1", "type_of_algo"]])
+
+    else:
+        data["prediction"] = output
+        data.to_csv("prediction_{}.csv".format("-".join(type_of_model)), index=False)
+        nb_positives = data[data.prediction == 1].shape[0]
+        nb_false_positives = data[(data.prediction == 1) & (data.label == 0)].shape[0]
+        nb_false_negatives = data[(data.prediction == 0) & (data.label == 1)].shape[0]
+        print("Nb of accounts predicted as galaxy members: {} ({}% of all accounts)".format(
+            nb_positives, round(nb_positives * 100 / data.shape[0], 2)
+        ))
+        print("Nb of accounts falsely predicted as galaxy members (false positives): {} ({}% of all accounts)".format(
+            nb_false_positives, round(nb_false_positives * 100 / data.shape[0], 2)
+        ))
+        print("Nb of missed galaxy members (false negatives): {} ({}% of all accounts)".format(
+        nb_false_negatives, round(nb_false_negatives * 100 / data.shape[0], 2)
+        ))
+
 
