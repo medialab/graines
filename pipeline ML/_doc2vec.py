@@ -5,10 +5,14 @@ from gensim.models.doc2vec import Doc2Vec, TaggedDocument
 from nltk.tokenize import word_tokenize
 import re
 
-data = pd.read_csv("data/followers_metadata_version_2021_09_21.csv",dtype={'id':'string'})
+data = pd.read_csv("data/followers_metadata_version_2021_10_19.csv",dtype={'id':'string'})
+data_flamboyant = pd.read_csv("data/graines_metadata.csv",dtype={'id':'string'})
 
 #!!!!!
 data['description']=data['description'].dropna()#rajouter name et screen_name
+data_flamboyant['description']=data['description'].dropna()
+
+
 
 def lower_it(string):
     try:
@@ -17,7 +21,7 @@ def lower_it(string):
         return ''
 
     
-tagged_data = [TaggedDocument(words=word_tokenize(lower_it(_d)), tags=[str(i)]) for i, _d in enumerate(data['description'])]
+tagged_data = [TaggedDocument(words=word_tokenize(lower_it(_d)), tags=[str(i)]) for i, _d in enumerate(list(data['description'])+list(data_flamboyant['description']))]
 
 
 vec_size = 20
@@ -48,18 +52,18 @@ for epoch in range(max_epochs):
 
 
 #np.save("embeddings/bert.npy", embeddings)
-model.save("d2v.npy")
-print("Model Saved")
+#model.save("d2v.npy")
+#print("Model Saved")
 
 
 
 print(model.wv['journaliste'])
 print(model.wv.most_similar('journalist'))
-len(model.docvecs)
-len(data)
+print(len(model.docvecs))
+print(len(data))
 
 index_id={}
-for i,id in enumerate(data.screen_name):
+for i,id in enumerate(list(data.screen_name)+list(data_flamboyant.screen_name)):
     index_id[id]=i
 data_ready = pd.read_csv("data/data_ready.csv", index_col=[0],dtype={'user_id':'string'})
 index_id['Marcusjvn']
@@ -67,11 +71,12 @@ index_id['Marcusjvn']
 doctovecs=[]
 h=0
 for x in data_ready.screen_name:
-    try:
+    #try:
+    if 1:#:
         doctovecs.append(model.docvecs[index_id[x]])
-    except:
-        doctovecs.append(model.docvecs[index_id['Marcusjvn']])#no desc vector !!!
-        h+=1
+    #except:
+        #doctovecs.append(model.docvecs[index_id['Marcusjvn']])#no desc vector !!!
+        #h+=1
 
 np.save("embeddings/doc2vecs.npy", doctovecs)
    
@@ -81,13 +86,13 @@ np.save("embeddings/doc2vecs.npy", doctovecs)
 # In[64]:
 
 
-model.docvecs[index_id['Marcusjvn']]
+#model.docvecs[index_id['Marcusjvn']]
 
 
 # In[72]:
 
 
-np.save("embeddings/doc2vecs.npy", np.array(doctovecs))
+#np.save("embeddings/doc2vecs.npy", np.array(doctovecs))
 
 
 # In[ ]:
