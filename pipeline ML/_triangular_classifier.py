@@ -132,6 +132,7 @@ if __name__ == "__main__":
     X_image = np.load("embeddings/full_profile_pictures.npy", allow_pickle=True)
     X_features = np.load("embeddings/features.npy", allow_pickle=True)
     X_topo = np.load("embeddings/topo.npy", allow_pickle=True)
+    X_d2v = np.load("embeddings/doc2vecs.npy", allow_pickle=True)
 
     dict_emb = {
         "tfidf": X_tfidf,
@@ -139,6 +140,7 @@ if __name__ == "__main__":
         "images": X_image,
         "features": X_features,
         "topology": X_topo,
+        "doc2vec": X_d2v
     }
 
     '''def make_classification(emb_type: list, dict_emb: dict, y: list):
@@ -185,6 +187,7 @@ if __name__ == "__main__":
     mean_report = pd.read_csv("mean_report.csv")
 
     if type_of_model != ["bayesian"]:
+        print([dict_emb[model].shape for model in type_of_model if model != "bayesian"])
         X = np.concatenate([dict_emb[model] for model in type_of_model if model != "bayesian"], axis=1)
     else:
         X = None

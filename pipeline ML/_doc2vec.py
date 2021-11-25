@@ -4,6 +4,8 @@ import spacy
 from gensim.models.doc2vec import Doc2Vec, TaggedDocument
 from nltk.tokenize import word_tokenize
 import re
+import nltk
+nltk.download('punkt')
 
 data = pd.read_csv("data/followers_metadata_version_2021_10_19.csv",dtype={'id':'string'})
 data_flamboyant = pd.read_csv("data/graines_metadata.csv",dtype={'id':'string'})
@@ -77,26 +79,7 @@ for x in data_ready.screen_name:
     #except:
         #doctovecs.append(model.docvecs[index_id['Marcusjvn']])#no desc vector !!!
         #h+=1
-
+print()
 np.save("embeddings/doc2vecs.npy", doctovecs)
-   
-    
-
-
-# In[64]:
-
-
-#model.docvecs[index_id['Marcusjvn']]
-
-
-# In[72]:
-
-
-#np.save("embeddings/doc2vecs.npy", np.array(doctovecs))
-
-
-# In[ ]:
-
-
 
 
