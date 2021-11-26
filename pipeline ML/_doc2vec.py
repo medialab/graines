@@ -11,10 +11,11 @@ data = pd.read_csv("data/followers_metadata_version_2021_10_19.csv",dtype={'id':
 data_flamboyant = pd.read_csv("data/graines_metadata.csv",dtype={'id':'string'})
 
 #!!!!!
-data['description']=data['description'].dropna()#rajouter name et screen_name
-data_flamboyant['description']=data['description'].dropna()
+#data['description']=data['description'].dropna()#rajouter name et screen_name
+#data_flamboyant['description']=data['description'].dropna()
 
-
+data['text']=data['screen_name']+' '+data['description']+' '+data['name']
+data_flamboyant['text']=data_flamboyant['screen_name']+' '+data_flamboyant['description']+' '+data_flamboyant['name']
 
 def lower_it(string):
     try:
@@ -23,17 +24,17 @@ def lower_it(string):
         return ''
 
     
-tagged_data = [TaggedDocument(words=word_tokenize(lower_it(_d)), tags=[str(i)]) for i, _d in enumerate(list(data['description'])+list(data_flamboyant['description']))]
+tagged_data = [TaggedDocument(words=word_tokenize(lower_it(_d)), tags=[str(i)]) for i, _d in enumerate(list(data['text'])+list(data_flamboyant['text']))]
 
 
-vec_size = 20
-alpha = 0.025
+#vec_size = 20
+#alpha = 0.025
 
 model = Doc2Vec(#size=vec_size,
-                alpha=alpha, 
+                alpha=.025, 
                 min_alpha=0.00025,
                 vector_size=50, window=10, min_count=10, workers=4,
-                dm =1,max_vocab_size=50000)
+                dm = 1,max_vocab_size=50000)
   
 model.build_vocab(tagged_data)
 
@@ -41,9 +42,7 @@ model.build_vocab(tagged_data)
 max_epochs=5
 for epoch in range(max_epochs):
     print('iteration {0}'.format(epoch))
-    model.train(tagged_data,
-                total_examples=model.corpus_count,
-                epochs=model.iter)
+    model.train(tagged_data,total_examples=model.corpus_count,epochs=model.iter)
     # decrease the learning rate
     model.alpha -= 0.0002
     # fix the learning rate, no decay
@@ -51,11 +50,6 @@ for epoch in range(max_epochs):
 
 
 
-
-
-#np.save("embeddings/bert.npy", embeddings)
-#model.save("d2v.npy")
-#print("Model Saved")
 
 
 
