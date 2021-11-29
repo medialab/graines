@@ -133,6 +133,7 @@ if __name__ == "__main__":
     X_features = np.load("embeddings/features.npy", allow_pickle=True)
     X_topo = np.load("embeddings/topo.npy", allow_pickle=True)
     X_d2v = np.load("embeddings/doc2vecs.npy", allow_pickle=True)
+    X_twact = np.load("embeddings/tweets_content.npy", allow_pickle=True)
 
     dict_emb = {
         "tfidf": X_tfidf,
@@ -140,7 +141,8 @@ if __name__ == "__main__":
         "images": X_image,
         "features": X_features,
         "topology": X_topo,
-        "doc2vec": X_d2v
+        "doc2vec": X_d2v,
+        "activity": X_twact
     }
 
     '''def make_classification(emb_type: list, dict_emb: dict, y: list):
