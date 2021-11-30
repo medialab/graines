@@ -39,12 +39,12 @@ def train_classifier(X, y, classifier_model, type_of_algo, seed):
     X = add_bayes(X, type_of_algo, seed)
 
     # Train Test Split
-    X_train, X_test, y_train, y_test, flamboyant_train, flamboyant_test = train_test_split(
-        X, y, not_flamboyant, test_size=0.3, random_state=seed
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=seed
     )
 
-    X_test = X_test[flamboyant_test]
-    y_test = np.array(y_test)[flamboyant_test]
+    X_test = X_test
+    y_test = np.array(y_test)
 
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.fit_transform(X_test)
@@ -57,7 +57,6 @@ def classifier_pipeline(
     type_of_algo: list,
     X: np.array,
     y: np.array,
-    not_flamboyant: np.array,
     classifier_model: str = "SVM_triangular_kernel",
     seeds: list = [12, 13, 14, 15],
     objective: str = "report",
@@ -183,7 +182,6 @@ if __name__ == "__main__":
 
     data = pd.read_csv("data/data_ready.csv")
     y = list(data["label"])
-    not_flamboyant = list(data["flamboyant_seed"] == 0)
 
     full_report = pd.read_csv("report.csv", index_col=[0])
     mean_report = pd.read_csv("mean_report.csv")
@@ -197,7 +195,6 @@ if __name__ == "__main__":
         type_of_algo=type_of_model,
         X=X,
         y=y,
-        not_flamboyant=not_flamboyant,
         seeds=seeds,
         objective=objective,
     )

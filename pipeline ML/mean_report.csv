@@ -31,3 +31,8 @@ precision,recall,f1,datetime,type_of_algo
 0.39±0.11,0.34±0.05,0.36±0.07,2021-11-26T13:10:12,topology|bayesian|bert
 0.18±0.05,0.12±0.03,0.14±0.04,2021-11-26T14:39:18,topology|bayesian|bert
 0.39±0.11,0.34±0.05,0.36±0.07,2021-11-26T14:55:04,topology|bayesian|bert
+0.86±0.05,0.56±0.06,0.67±0.05,2021-11-30T16:05:00,topology|bayesian
+0.92±0.05,0.5±0.07,0.65±0.06,2021-11-30T16:07:47,topology|bayesian|bert
+0.89±0.04,0.49±0.04,0.63±0.03,2021-11-30T16:10:20,topology|bayesian|tfidf
+0.98±0.0,1.0±0.0,0.99±0.0,2021-11-30T16:12:25,topology|bayesian|tfidf
+0.89±0.04,0.49±0.04,0.63±0.03,2021-11-30T16:13:09,topology|bayesian|tfidf
