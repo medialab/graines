@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import os
+from config import prevalence
 
 if not os.path.exists("data"):
     os.makedirs("data")
@@ -16,6 +17,8 @@ data_1 = pd.read_csv("data/data annotated/project-116-at-2021-10-13-06-37-e3dd8c
 data_2 = pd.read_csv("data/data annotated/project-118-at-2021-10-13-06-38-e2172a5e.csv")
 df_ann = pd.concat([data_1, data_2])
 key = ["screen_name", "name", "description", "protected", "location"]
+# sort values by sentiment to keep accounts annotated as graines at least once
+df_ann = df_ann.sort_values("sentiment")
 df_ann = df_ann[key + ["sentiment"]].drop_duplicates(key)
 
 # Merge the initial data and the results of the annotations based on similar various keys
@@ -32,6 +35,7 @@ final["flamboyant_seed"] = 0
 
 # Load the seeds
 seeds = pd.read_csv("data/VF-Carte Raison - Corpus-final.csv")
+seeds = seeds.drop_duplicates("twitter_handle")
 seeds = seeds[["twitter_handle"]]
 seeds["sentiment"] = "graine"
 seeds["flamboyant_seed"] = 1
@@ -52,8 +56,8 @@ for col, dtype in seeds.dtypes.iteritems():
         seeds[col] = seeds[col].astype(int)
 
 # Concatenate annotated data and seeds, remove duplicates, and shuffle them
-final = pd.concat([final, seeds])
-final = final.drop_duplicates("user_id")
+final = pd.concat([seeds, final])
+final = final.drop_duplicates("user_id", keep="first")
 final = final.sample(final.shape[0], random_state=0)
 
 # Change the labeling into a categorical variable
