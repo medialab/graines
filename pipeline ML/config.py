@@ -6,7 +6,8 @@ seeds = [1, 2, 3, 4, 5, 6]
 type_of_model = ["bert", "bayesian", "topology"]
 type_of_model = [ "topology","bayesian",'bert']
 #type_of_model= ["bert", "images", "features", "topology", "bayesian", "tfidf", 'doc2vec']
-#type_of_model = ["doc2vec"]
+type_of_model = ["topology","bayesian","tfidf"]
 
 #chose one objective from ["report", "classification"]
 objective = "report"
+prevalence=39/1796

@@ -34,6 +34,19 @@ key = ["screen_name", "name", "description", "protected", "location"]
 df_ann = df_ann.sort_values("sentiment")
 df_ann = df_ann[key + ["sentiment"]].drop_duplicates(key)
 
+df_ann_lastcall=pd.read_csv("data/data annotated/annotated_galaxy_members - annotated_galaxy_members.csv")
+check=dict(zip(df_ann.screen_name,df_ann.sentiment))
+check2=dict(zip(df_ann_lastcall.screen_name,df_ann_lastcall.flamboyant))
+for c in check2:
+	if check2[c]=='1':
+		check[c]='graine'
+	else:
+		check[c]='non-graine'
+df_ann['sentiment']=df_ann['screen_name'].map(check)
+#df_ann['sentiment'].replace({"0": "non-graine", "1": "graine"}, inplace=True)
+
+
+#print (df_ann)
 # Merge the initial data and the results of the annotations based on similar various keys
 merged = pd.merge(
     data,
@@ -44,6 +57,7 @@ merged = pd.merge(
 
 # Deal with data that have not been annotated
 final = merged[merged.sentiment.notna()].reset_index(drop=True)
+
 final["flamboyant_seed"] = 0
 
 # Merge the initial data and the seeds
@@ -69,4 +83,6 @@ final = final.sample(final.shape[0], random_state=0)
 # Change the labeling into a categorical variable
 map_code = {"non-graine": 0, "graine": 1}
 final["label"] = final["sentiment"].map(map_code)
+print(final.label.value_counts())
+print ("final dataset is rich of ",str(len(final)),' accounts')
 final.to_csv("data/data_ready.csv")
