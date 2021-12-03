@@ -27,8 +27,11 @@ for id in list(df.screen_name)[:]:
         pass
     else:
         tweets=[]
-        for tweet in scraper.search('from:'+str(id),limit=20):
-            tweets.append(tweet)
+        try:
+            for tweet in scraper.search('from:'+str(id),limit=20):
+                tweets.append(tweet)
+        except:
+            print('failed',id)
         pd.DataFrame(tweets).to_csv(fname)
 
 tweets_content=[]

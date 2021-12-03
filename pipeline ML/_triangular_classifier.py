@@ -40,7 +40,7 @@ def train_classifier(X, y, classifier_model, type_of_algo, seed):
 
     # Train Test Split
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=seed
+        X, y, test_size=0.25, random_state=seed
     )
 
     X_test = X_test
