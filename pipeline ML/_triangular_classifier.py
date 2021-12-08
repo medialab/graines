@@ -9,7 +9,9 @@ from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 import os
 from config import seeds, type_of_model, objective
+from tqdm import tqdm
 
+BATCH_SIZE = 1000
 
 def triangular_kernel(X, Y):
     return 1 - abs(euclidean_distances(X, Y))
@@ -21,7 +23,7 @@ classifiers = {
 }
 
 
-def add_bayes(X, type_of_algo, seed):
+def add_bayes(X, type_of_algo, seed=0):
     bayes_file_path = "embeddings/bayesian_proba_MultinomialNB_{}.npy".format(seed)
     if type_of_algo == ["bayesian"]:
         X = np.load(bayes_file_path)
@@ -31,27 +33,15 @@ def add_bayes(X, type_of_algo, seed):
     return X
 
 
-def train_classifier(X, y, classifier_model, type_of_algo, seed):
-    scaler = StandardScaler()
+def train_classifier(X_train, y_train, classifier_model):
+
     # Chose classifier
     clf = classifiers[classifier_model]
 
-    X = add_bayes(X, type_of_algo, seed)
-
-    # Train Test Split
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.25, random_state=seed
-    )
-
-    X_test = X_test
-    y_test = np.array(y_test)
-
-    X_train = scaler.fit_transform(X_train)
-    X_test = scaler.fit_transform(X_test)
-
     # Fit
     clf.fit(X_train, y_train)
-    return clf, X_test, y_test
+    return clf
+
 
 def classifier_pipeline(
     type_of_algo: list,
@@ -60,6 +50,7 @@ def classifier_pipeline(
     classifier_model: str = "SVM_triangular_kernel",
     seeds: list = [12, 13, 14, 15],
     objective: str = "report",
+    X_predict: np.array = None
 ) -> pd.DataFrame:
 
     """This function trains a triangular classifier and outputs a report or the results of the prediction
@@ -84,7 +75,22 @@ def classifier_pipeline(
     if objective == "report":  # Only compute the report
         display_df = pd.DataFrame()
         for seed in seeds:
-            clf, X_test, y_test = train_classifier(X, y, classifier_model, type_of_algo, seed)
+            X = add_bayes(X, type_of_algo, seed=seed)
+
+            # Train Test Split
+            X_train, X_test, y_train, y_test = train_test_split(
+                X, y, test_size=0.25, random_state=seed
+            )
+
+            X_test = X_test
+            y_test = np.array(y_test)
+
+            scaler = StandardScaler()
+
+            X_train = scaler.fit_transform(X_train)
+            X_test = scaler.fit_transform(X_test)
+
+            clf = train_classifier(X_train, y_train, classifier_model)
 
             # Predict
             y_pred = clf.predict(X_test)
@@ -111,12 +117,15 @@ def classifier_pipeline(
 
     # Only predict the values
     elif objective == "classification":
-        seed = seeds[1]
+        X = add_bayes(X, type_of_algo, seed="final_train")
         scaler = StandardScaler()
-        clf, _, _ = train_classifier(X, y, classifier_model, type_of_algo, seed)
-        X = add_bayes(X, type_of_algo, seed)
         X = scaler.fit_transform(X)
-        y_pred = clf.predict(X)
+        X_predict = scaler.fit_transform(X_predict)
+        clf = train_classifier(X, y, classifier_model)
+
+        y_pred = clf.predict(X_predict[:BATCH_SIZE])
+        for i in tqdm(range(BATCH_SIZE, X_predict.shape[0], BATCH_SIZE)):
+            y_pred = np.concatenate([y_pred, clf.predict(X_predict[i:i+BATCH_SIZE])], axis=0)
         return y_pred
 
     else:
@@ -144,42 +153,6 @@ if __name__ == "__main__":
         "activity": X_twact
     }
 
-    '''def make_classification(emb_type: list, dict_emb: dict, y: list):
-        """This functions takes as an input the desired embeddings and outputs
-        the results of the classification as a report and as a prediction
-
-        Args:
-            emb_type (list): example: ['bert', 'tfidf]
-            dict_emb (dict): the table of name and related embeddings
-            y (list): the labels
-
-        Returns:
-            [type]: outputs a report and the predictions of the algorithm
-        """
-
-        X = np.array(object)
-        for x in emb_type:
-            emb = dict_emb[x]
-            X = np.concatenate((X, emb), axis=1)
-            full_report = pd.read_csv("report.csv", index_col=[0])
-            report = classifier_pipeline(
-                type_of_algo="-".join(emb_type),
-                X=X,
-                y=y,
-                seeds=[1, 2, 3, 4, 5, 6],
-                objective="report",
-            )
-            full_report = full_report.append(report)
-            full_report.to_csv("report.csv")
-            y_pred = classifier_pipeline(
-                type_of_algo="-".join(emb_type),
-                X=X,
-                y=y,
-                seeds=[1, 2, 3, 4, 5, 6],
-                objective="classification",
-            )
-        return report, y_pred'''
-
     data = pd.read_csv("data/data_ready.csv")
     y = list(data["label"])
 
@@ -187,19 +160,18 @@ if __name__ == "__main__":
     mean_report = pd.read_csv("mean_report.csv")
 
     if type_of_model != ["bayesian"]:
-        print([dict_emb[model].shape for model in type_of_model if model != "bayesian"])
         X = np.concatenate([dict_emb[model] for model in type_of_model if model != "bayesian"], axis=1)
     else:
         X = None
-    output = classifier_pipeline(
-        type_of_algo=type_of_model,
-        X=X,
-        y=y,
-        seeds=seeds,
-        objective=objective,
-    )
 
     if objective == "report":
+        output = classifier_pipeline(
+            type_of_algo=type_of_model,
+            X=X,
+            y=y,
+            seeds=seeds,
+            objective=objective,
+        )
         full_report = full_report.append(output)
         full_report.to_csv("report.csv")
 
@@ -221,20 +193,32 @@ if __name__ == "__main__":
         print("Average on {} runs:".format(output.shape[0]))
         print(mean[["precision", "recall", "f1", "type_of_algo"]])
 
-    else:
-        data["prediction"] = output
-        data.to_csv("prediction_{}.csv".format("-".join(type_of_model)), index=False)
-        nb_positives = data[data.prediction == 1].shape[0]
-        nb_false_positives = data[(data.prediction == 1) & (data.label == 0)].shape[0]
-        nb_false_negatives = data[(data.prediction == 0) & (data.label == 1)].shape[0]
+    elif objective == "classification":
+        aliases = {
+            'bayesian': 'bayesian_proba_MultinomialNB_final_predict.npy'
+        }
+        X_predict = np.concatenate(
+            [np.load(os.path.join("embeddings", aliases[model])) for model in type_of_model],
+            axis=1
+        )
+        output = classifier_pipeline(
+            type_of_algo=type_of_model,
+            X=X,
+            y=y,
+            seeds=[],
+            objective=objective,
+            X_predict=X_predict
+        )
+        all_data = pd.read_csv("data/followers_metadata_version_2021_10_19.csv")
+        all_data["prediction"] = output
+        all_data.to_csv("prediction_{}.csv".format("-".join(type_of_model)), index=False)
+        print("Saved predictions file to prediction_{}.csv".format("-".join(type_of_model)))
+        nb_positives = all_data[all_data.prediction == 1].shape[0]
         print("Nb of accounts predicted as galaxy members: {} ({}% of all accounts)".format(
-            nb_positives, round(nb_positives * 100 / data.shape[0], 2)
+            nb_positives, round(nb_positives * 100 / all_data.shape[0], 2)
         ))
-        print("Nb of accounts falsely predicted as galaxy members (false positives): {} ({}% of all accounts)".format(
-            nb_false_positives, round(nb_false_positives * 100 / data.shape[0], 2)
-        ))
-        print("Nb of missed galaxy members (false negatives): {} ({}% of all accounts)".format(
-        nb_false_negatives, round(nb_false_negatives * 100 / data.shape[0], 2)
-        ))
+
+    else:
+        print("objective parameter should be either report or classification")
 
 
