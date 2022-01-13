@@ -1,11 +1,12 @@
 import numpy as np
 import pandas as pd
+from config import objective
 
 
 def topo(
+    objective: str,
     df: pd.DataFrame,
     dfri: pd.DataFrame,
-    metaf: pd.DataFrame,
     metag: pd.DataFrame,
     dg: pd.DataFrame,
 ) -> np.array:
@@ -21,8 +22,12 @@ def topo(
     Returns:
         np.array: [description]
     """
-
-    raisins = list(df.twitter_handle.unique())
+    if objective == "report":
+        raisins = list(df.twitter_handle.unique())
+    elif objective == "classification":
+        raisins = list(df.screen_name.unique())
+    else:
+        raise ValueError("objective should be either 'report' or 'classification'")
     nb_followers_dict = dict(zip(metag.screen_name, metag.followers))
     nb_friends_dict = dict(zip(metag.screen_name, metag.friends))
 
@@ -88,7 +93,6 @@ def topo(
                 sum(net_fol_norm.get(str(id), [])) / (fri + 1)
             )
 
-    vector_topo = pd.DataFrame.from_dict(topo).transpose()
     dtopo = pd.DataFrame.from_dict(topo).transpose()
 
     return dtopo.values
@@ -96,16 +100,19 @@ def topo(
 
 if __name__ == "__main__":
     df = pd.read_csv(
-        "data/followers_graines_version_2021_09_21.csv",
+        "data/followers_graines_version_2021_10_19.csv",
         dtype={"follower_id": "str", "twitter_handle": "str"},
     )
     dfri = pd.read_csv(
         "data/friends_graines.csv.gz",
         dtype={"friend_id": "str", "twitter_handle": "str"},
     )
-    metaf = pd.read_csv("data/followers_metadata_version_2021_09_21.csv")
     metag = pd.read_csv("data/graines_metadata.csv")
     dg = pd.read_csv("data/data_ready.csv", dtype={"user_id": "str"})
 
-    emb = topo(df, dfri, metaf, metag, dg)
+    emb = topo("report", df, dfri, metag, dg)
     np.save("embeddings/topo.npy", emb)
+
+    if objective == "classification":
+        emb = topo(objective, df, dfri, metag, dg)
+        np.save("embeddings/topo_final_predict.npy")

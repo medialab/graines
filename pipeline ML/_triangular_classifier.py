@@ -135,22 +135,14 @@ def classifier_pipeline(
 if __name__ == "__main__":
 
     # Load Computed embeddings
-    X_tfidf = np.load("embeddings/tfidf.npy", allow_pickle=True)
-    X_bert = np.load("embeddings/bert.npy", allow_pickle=True)
-    X_image = np.load("embeddings/full_profile_pictures.npy", allow_pickle=True)
-    X_features = np.load("embeddings/features.npy", allow_pickle=True)
-    X_topo = np.load("embeddings/topo.npy", allow_pickle=True)
-    X_d2v = np.load("embeddings/doc2vecs.npy", allow_pickle=True)
-    X_twact = np.load("embeddings/tweets_content.npy", allow_pickle=True)
-
     dict_emb = {
-        "tfidf": X_tfidf,
-        "bert": X_bert,
-        "images": X_image,
-        "features": X_features,
-        "topology": X_topo,
-        "doc2vec": X_d2v,
-        "activity": X_twact
+    "tfidf": "tfidf.npy",
+    "bert": "bert.npy",
+    "image": "full_profile_pictures.npy",
+    "features": "features.npy",
+    "topology": "topo.npy",
+    "doc2vec": "doc2vecs.npy",
+    "activity": "tweets_content.npy"
     }
 
     data = pd.read_csv("data/data_ready.csv")
@@ -160,7 +152,13 @@ if __name__ == "__main__":
     mean_report = pd.read_csv("mean_report.csv")
 
     if type_of_model != ["bayesian"]:
-        X = np.concatenate([dict_emb[model] for model in type_of_model if model != "bayesian"], axis=1)
+        X = np.concatenate(
+            [np.load
+             (os.path.join("embeddings", dict_emb[model]), allow_pickle=True
+              ) for model in type_of_model if model != "bayesian"
+             ],
+            axis=1
+        )
     else:
         X = None
 
@@ -194,11 +192,11 @@ if __name__ == "__main__":
         print(mean[["precision", "recall", "f1", "type_of_algo"]])
 
     elif objective == "classification":
-        aliases = {
-            'bayesian': 'bayesian_proba_MultinomialNB_final_predict.npy'
-        }
+        dict_emb.update({'bayesian': 'bayesian_proba_MultinomialNB.npy'})
         X_predict = np.concatenate(
-            [np.load(os.path.join("embeddings", aliases[model])) for model in type_of_model],
+            [np.load(
+                os.path.join("embeddings", dict_emb[model].replace(".npy", "_final_predict.npy"))
+            ) for model in type_of_model],
             axis=1
         )
         output = classifier_pipeline(

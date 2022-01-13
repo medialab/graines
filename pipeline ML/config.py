@@ -4,10 +4,9 @@ seeds = [1, 2, 3, 4, 5, 6]
 #chose one or several embeddings from ["bert", "images", "features", "topology", "bayesian", "tfidf", doc2vec]
 # If several models are selected, the vectors will be concatenated.
 type_of_model = ["bert", "bayesian", "topology"]
-type_of_model = [ "topology","bayesian",'bert']
+type_of_model = ["bayesian"]
 #type_of_model= ["bert", "images", "features", "topology", "bayesian", "tfidf", 'doc2vec']
-type_of_model = ["topology","bayesian","tfidf"]
 
 #chose one objective from ["report", "classification"]
-objective = "report"
+objective = "classification"
 prevalence=39/1796
