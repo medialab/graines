@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from config import objective
+from glob import glob
 
 
 def topo(
@@ -100,7 +101,7 @@ def topo(
 
 if __name__ == "__main__":
     df = pd.read_csv(
-        "data/followers_graines_version_2021_10_19.csv",
+        "data/followers_graines_version_2021_09_21.csv",
         dtype={"follower_id": "str", "twitter_handle": "str"},
     )
     dfri = pd.read_csv(
