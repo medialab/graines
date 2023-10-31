@@ -82,7 +82,7 @@ def bayesian_pipeline(
                         if mention not in mentions_user:
                             mentions_user[mention] = 1
                         else:
-                            mentions_user[mention] = +1
+                            mentions_user[mention] += 1
                 # if someone is mentioned by a graine, add it to the mentioned_dict
                 if row[screen_name_pos] in vocabulary:
                     for mention in row[mentions_pos].split("|"):

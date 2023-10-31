@@ -10,17 +10,11 @@ from sklearn.preprocessing import StandardScaler
 import os
 from config import seeds, type_of_model, objective
 from tqdm import tqdm
-import random
-import copy
 
-BATCH_SIZE = 5000
-
-def triangular_kernel(X, Y):
-    return 1 - abs(euclidean_distances(X, Y))
-
+BATCH_SIZE = 1000
 
 classifiers = {
-    "SVM_triangular_kernel": SVC(kernel=triangular_kernel, C=3),
+    "catboost": SVC(kernel=triangular_kernel, C=3),
     "SVM_RBF_kernel": SVC(),
 }
 
@@ -120,8 +114,6 @@ def classifier_pipeline(
     # Only predict the values
     elif objective == "classification":
         X = add_bayes(X, type_of_algo, seed="final_train")
-        if X_predict is None or X.shape[0] == X_predict.shape[0]:
-            X_predict = add_bayes(X_predict, type_of_algo, seed="final_train")
         scaler = StandardScaler()
         X = scaler.fit_transform(X)
         X_predict = scaler.fit_transform(X_predict)
@@ -133,7 +125,7 @@ def classifier_pipeline(
         return y_pred
 
     else:
-        print("Choose a right objective")
+        print("Chose a right objective")
 
 
 if __name__ == "__main__":
@@ -196,7 +188,6 @@ if __name__ == "__main__":
         print(mean[["precision", "recall", "f1", "type_of_algo"]])
 
     elif objective == "classification":
-        annotated = set(data.user_id.unique())
         dict_emb.update({'bayesian': 'bayesian_proba_MultinomialNB.npy'})
         X_predict = np.concatenate(
             [np.load(
@@ -204,63 +195,22 @@ if __name__ == "__main__":
             ) for model in type_of_model],
             axis=1
         )
-        bayesian_X = np.concatenate(
-            [np.load(
-                os.path.join("embeddings", dict_emb[model].replace(".npy", "_final_train.npy"))
-            ) for model in type_of_model],
-            axis=1
-        )
-        # X_predict = X.copy()
-        all_data = pd.read_csv("data/followers_metadata_version_2021_10_19.csv").reset_index()
-        to_keep = all_data.description.notna()
-        # all_data = all_data[to_keep]
-        # print(all_data.shape)
-        # X_predict = X_predict[to_keep]
-        # print(X_predict.shape)
-        # random.seed(a=5)
-        # sample = random.sample(range(0, X_predict.shape[0]), X_predict.shape[0])
-        all_data_sample = all_data[all_data.id.isin(annotated)]
-        argsort = all_data_sample.screen_name.argsort()
-        X_predict_sample = X_predict[all_data.id.isin(annotated)][argsort]
-        # X_predict_sample = X_predict[sample]
-        all_data_sample = all_data_sample.sort_values("screen_name")
-
-        # argsort = data.screen_name.argsort()
-        # X_sorted = bayesian_X[argsort]
-        # different_rows = (X_sorted != X_predict_sample)[:,0]
-        # print(different_rows)
-        # data_with_different_rows = data.sort_values("screen_name")[different_rows]
-        # sample_with_different_rows = all_data_sample[different_rows]
         output = classifier_pipeline(
             type_of_algo=type_of_model,
             X=X,
             y=y,
             seeds=[],
             objective=objective,
-            X_predict=X_predict_sample
+            X_predict=X_predict
         )
-        # data["prediction"] = output
-        # all_data["prediction"] = output
-        # all_data_sample = all_data.iloc[sample]
-        # all_data_sample = data.iloc[sample]
-        all_data_sample["prediction"] = output
-        # all_data.to_csv("prediction_{}.csv".format("-".join(type_of_model)), index=False)
-        # print("Saved predictions file to prediction_{}.csv".format("-".join(type_of_model)))
-
-
-        nb_positives = all_data_sample[all_data_sample.prediction == 1].shape[0]
-        # nb_positives = data[data.prediction == 1].shape[0]
-
-        print("Nb of accounts predicted as galaxy members: {} ({}% of all {} accounts)".format(
-            nb_positives, round(nb_positives * 100 / all_data_sample.shape[0], 2), all_data_sample.shape[0]
+        all_data = pd.read_csv("data/followers_metadata_version_2021_10_19.csv")
+        all_data["prediction"] = output
+        all_data.to_csv("prediction_{}.csv".format("-".join(type_of_model)), index=False)
+        print("Saved predictions file to prediction_{}.csv".format("-".join(type_of_model)))
+        nb_positives = all_data[all_data.prediction == 1].shape[0]
+        print("Nb of accounts predicted as galaxy members: {} ({}% of all accounts)".format(
+            nb_positives, round(nb_positives * 100 / all_data.shape[0], 2)
         ))
-        annotated_subsample = all_data_sample[all_data_sample.id.isin(set(annotated))]
-        annotated_subsample = pd.merge(annotated_subsample, data[["user_id", "label"]], left_on="id", right_on="user_id", how="left")
-        print(annotated_subsample.prediction.value_counts())
-        p, r, f, s = precision_recall_fscore_support(annotated_subsample["label"], annotated_subsample["prediction"], pos_label=1, average="binary")
-        print("precision: {}\n recall: {}\n f-score: {}".format(p, r, f))
-        positives = annotated_subsample[annotated_subsample.prediction == 1]
-        print(positives["description"])
 
     else:
         print("objective parameter should be either report or classification")
